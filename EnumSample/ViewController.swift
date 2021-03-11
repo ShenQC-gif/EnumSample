@@ -9,7 +9,7 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    private var mode = Mode()
+    private var mode = Mode.Normal
 
     @IBOutlet weak var modeLabel: UILabel!
     @IBOutlet weak var nextModeButton: UIButton!
@@ -21,17 +21,17 @@ class ViewController: UIViewController {
     }
 
     @IBAction func didTapNextModeButton(_ sender: Any) {
-        mode.nextMode()
+        mode = mode.nextMode() ?? mode
         modeLabel.text = mode.returnTitle()
-        nextModeButton.isHidden = !mode.nextModeExists()
-        previousModeButton.isHidden = !mode.previousModeExists()
+        nextModeButton.isHidden = mode.nextMode() == nil
+        previousModeButton.isHidden = mode.previousMode() == nil
     }
 
     @IBAction func didTapPreviousModeButton(_ sender: Any) {
-        mode.previousMode()
+        mode = mode.previousMode() ?? mode
         modeLabel.text = mode.returnTitle()
-        nextModeButton.isHidden = !mode.nextModeExists()
-        previousModeButton.isHidden = !mode.previousModeExists()
+        nextModeButton.isHidden = mode.nextMode() == nil
+        previousModeButton.isHidden = mode.previousMode() == nil
     }
 }
 
@@ -42,53 +42,12 @@ enum Mode : Int{
     case Normal
     case Hard
 
-    //初期値としてNormalを指定
-    init() {
-        self = Mode.Normal
+    func nextMode() -> Mode?{
+        Mode(rawValue: self.rawValue + 1)
     }
 
-    //次の難易度があれば変更、なければ何もしない
-    mutating func nextMode() {
-        if let nextMode = Mode(rawValue: rawValue + 1) {
-            self = nextMode
-        } else {
-            return
-        }
-    }
-
-    //次の難易度があればtrue、なければfalse
-    func nextModeExists() -> Bool {
-        var ifExist: Bool
-
-        if Mode(rawValue: rawValue + 1) != nil {
-            ifExist = true
-        } else {
-            ifExist = false
-        }
-
-        return ifExist
-    }
-
-    //前の難易度があれば変更、なければ何もしない
-    mutating func previousMode() {
-        if let previousMode = Mode(rawValue: rawValue - 1) {
-            self = previousMode
-        } else {
-            return
-        }
-    }
-
-    //前の難易度があればtrue、なければfalse
-    func previousModeExists() -> Bool {
-        var ifExist: Bool
-
-        if Mode(rawValue: rawValue - 1) != nil {
-            ifExist = true
-        } else {
-            ifExist = false
-        }
-
-        return ifExist
+    func previousMode() -> Mode?{
+        Mode(rawValue: self.rawValue - 1)
     }
 
     //難易度毎のタイトルを返す
